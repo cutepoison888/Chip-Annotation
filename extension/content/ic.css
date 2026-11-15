@@ -1,0 +1,398 @@
+/* 芯标注 · 页面样式 */
+
+/* 公司标注 */
+.icm-original { color: #e5162b !important; font-weight: 700 !important; }
+.icm-avoid { background: #ffe14d !important; color: #3a2d00 !important; font-weight: 700 !important; border-radius: 3px; padding: 0 3px; }
+.icm-caution { color: #f07800 !important; font-weight: 700 !important; text-decoration: underline wavy #f07800 1px; text-underline-offset: 3px; }
+
+/* QQ 标识 */
+a.icm-qq { position: relative; border-radius: 50%; }
+a.icm-qq-enterprise { box-shadow: 0 0 0 2px #14b86a; }
+a.icm-qq-personal { box-shadow: 0 0 0 2px #9aa0ab; filter: grayscale(0.85); opacity: .8; }
+a.icm-qq-guess.icm-qq-enterprise { box-shadow: 0 0 0 2px rgba(20,184,106,.45); }
+a.icm-qq-guess.icm-qq-personal { box-shadow: 0 0 0 2px rgba(154,160,171,.5); }
+a.icm-qq-personal::after {
+  content: "加"; position: absolute; right: -6px; bottom: -5px; width: 12px; height: 12px; line-height: 12px;
+  font-size: 9px; text-align: center; color: #fff; background: #8a909c; border-radius: 50%; font-weight: 700; pointer-events: none;
+}
+
+/* 去广告后，结果区居中 */
+html.icm-noads .right_results { float: none !important; margin: 0 auto !important; }
+
+/* 提示 */
+#icm-toast {
+  position: fixed; left: 50%; top: 24px; transform: translate(-50%, -12px); opacity: 0; pointer-events: none;
+  background: rgba(17, 20, 28, .94); color: #fff; padding: 10px 18px; border-radius: 10px; font: 14px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25); z-index: 2147483647; transition: .2s; max-width: 80vw;
+}
+#icm-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* 批量询价按钮：嵌在结果栏里 */
+#icm-fab {
+  display: inline-flex; align-items: center; gap: 6px; border: 0; cursor: pointer; white-space: nowrap;
+  background: linear-gradient(135deg, #7c5cff, #4f8cff); color: #fff; font: 600 13px/1 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  padding: 6px 12px; border-radius: 6px; box-shadow: 0 4px 12px rgba(92, 104, 255, .35);
+}
+#icm-fab.icm-inline { float: left; margin: 6px 0 0 10px; height: 26px; }
+#icm-fab.icm-floating { position: fixed; right: 24px; top: 120px; z-index: 2147483000; padding: 10px 16px; border-radius: 999px; }
+#icm-fab:hover { filter: brightness(1.08); }
+#icm-fab .icm-fab-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px #fff; }
+
+/* 打开面板时，把页面往左推，面板不盖住页面内容 */
+html.icm-drawer-open { padding-right: 420px !important; }
+
+/* 批量询价面板 */
+#icm-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 420px; display: flex; flex-direction: column;
+  background: #fff; color: #1d2230; border-radius: 0; box-shadow: -12px 0 40px rgba(20, 24, 40, .18); z-index: 2147483001;
+  font: 13px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; overflow: hidden; border-left: 1px solid #e6e8ef;
+}
+#icm-panel * { box-sizing: border-box; }
+#icm-panel .icm-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px;
+  background: linear-gradient(135deg, #7c5cff, #4f8cff); color: #fff; font-size: 14px; }
+#icm-panel .icm-x { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }
+#icm-panel .icm-body { padding: 12px 14px; overflow: auto; }
+#icm-panel label { display: block; color: #5b6275; margin-bottom: 4px; }
+#icm-panel textarea, #icm-panel input:not([type=checkbox]) {
+  width: 100%; border: 1px solid #d9dce6; border-radius: 8px; padding: 6px 8px; font: inherit; color: inherit; outline: none; }
+#icm-panel textarea:focus, #icm-panel input:focus { border-color: #7c5cff; }
+#icm-panel .icm-line { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+#icm-panel .icm-line label { display: flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; }
+#icm-panel .icm-line label input { width: 150px; }
+#icm-panel .icm-grow { flex: 1; }
+#icm-panel .icm-muted { color: #8a90a0; }
+#icm-panel .icm-small { font-size: 12px; margin: 10px 0 0; }
+#icm-panel .icm-link { white-space: nowrap; background: none; border: 0; color: #5b5bff; cursor: pointer; padding: 0 2px; font: inherit; }
+#icm-panel .icm-list { margin-top: 8px; border: 1px solid #eceef4; border-radius: 10px; }
+#icm-panel .icm-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; margin: 0; border-bottom: 1px solid #f2f3f7; color: #1d2230; cursor: pointer; }
+#icm-panel .icm-item:last-child { border-bottom: 0; }
+#icm-panel .icm-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#icm-panel .icm-tag { font-size: 11px; padding: 0 6px; border-radius: 5px; }
+#icm-panel .icm-tag.enterprise { background: #e3f8ee; color: #0f9a57; }
+#icm-panel .icm-tag.personal { background: #eef0f4; color: #6b7182; }
+#icm-panel .icm-step { margin-top: 10px; background: #f5f3ff; border: 1px solid #e2dcff; border-radius: 10px; padding: 10px; }
+#icm-panel .hidden { display: none; }
+#icm-panel .icm-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+#icm-panel .icm-btn { border: 1px solid #d9dce6; background: #fff; border-radius: 8px; padding: 6px 12px; cursor: pointer; font: inherit; color: #1d2230; }
+#icm-panel .icm-btn.primary { background: linear-gradient(135deg, #7c5cff, #4f8cff); border-color: transparent; color: #fff; }
+#icm-panel .icm-btn.ghost { border-color: transparent; color: #8a90a0; }
+
+/* 面板底部固定按钮栏 */
+#icm-panel .icm-foot { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid #eceef4; background: #fafbff; }
+#icm-panel .icm-big { flex: 1; padding: 10px 14px; font-size: 14px; font-weight: 600; }
+#icm-panel .icm-btn:disabled { opacity: .45; cursor: default; }
+#icm-panel .icm-guide { margin: 0 0 12px; padding: 10px 12px; background: #f5f3ff; border: 1px solid #e2dcff; border-radius: 10px; color: #4a4f63; }
+#icm-panel .icm-guide ol { margin: 4px 0 6px; padding-left: 18px; }
+#icm-panel .icm-guide li { margin: 3px 0; }
+#icm-panel .icm-guide-t { font-weight: 700; color: #3b2fb8; margin-bottom: 4px; }
+#icm-panel .icm-guide-n { font-size: 12px; color: #6b7182; border-top: 1px dashed #d8d0ff; padding-top: 6px; }
+#icm-panel .icm-progress { height: 6px; background: #eceef4; border-radius: 6px; overflow: hidden; margin-bottom: 6px; }
+#icm-panel .icm-progress span { display: block; height: 100%; background: linear-gradient(90deg, #7c5cff, #4f8cff); transition: width .3s; }
+#icm-panel .icm-cur { font-size: 16px; font-weight: 700; margin: 4px 0 10px; }
+#icm-panel .icm-howto { background: #f5f3ff; border: 1px solid #e2dcff; border-radius: 10px; padding: 10px 12px; line-height: 1.9; margin-bottom: 12px; }
+#icm-panel .icm-preview { white-space: pre-wrap; word-break: break-all; background: #f6f7fb; border-radius: 8px; padding: 8px 10px; margin: 10px 0 0; font: inherit; color: #4a4f63; }
+#icm-panel .icm-done { font-size: 18px; font-weight: 700; text-align: center; padding: 30px 0 6px; }
+
+/* 货源对比条（插在结果列表上方，跟着页面走） */
+#icm-srcbar {
+  clear: both; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; padding: 8px 10px;
+  background: linear-gradient(90deg, #f5f3ff, #eef4ff); border: 1px solid #e2dcff; border-radius: 8px;
+  font: 12px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; color: #1d2230;
+}
+#icm-srcbar .icm-srcbar-t { font-weight: 700; color: #3b2fb8; }
+#icm-srcbar .icm-srcs { display: flex; flex-wrap: wrap; gap: 6px; }
+#icm-srcbar .icm-src { display: inline-flex; align-items: center; gap: 4px; background: #fff; border: 1px solid #e3e5ee; border-radius: 6px; padding: 3px 8px; color: #1d2230 !important; text-decoration: none !important; }
+#icm-srcbar a.icm-src.ok:hover { border-color: #7c5cff; }
+#icm-srcbar .icm-src.loading { color: #8a90a0 !important; }
+#icm-srcbar .icm-src.err { border-color: #ffd0d4; }
+#icm-srcbar .icm-src a { color: #5b5bff; }
+#icm-srcbar .icm-stock { font-style: normal; color: #0f9a57; font-weight: 700; }
+#icm-srcbar .icm-nostock { font-style: normal; color: #8a90a0; }
+#icm-srcbar .icm-muted { color: #8a90a0; }
+#icm-srcbar .icm-grow { flex: 1; }
+#icm-srcbar .icm-src-q { border: 0; background: #ece8ff; color: #4a3bd6; border-radius: 4px; padding: 1px 6px; cursor: pointer; font: inherit; }
+#icm-srcbar .icm-mini { border: 1px solid #d9dce6; background: #fff; border-radius: 6px; padding: 3px 8px; cursor: pointer; font: inherit; color: #1d2230; }
+#icm-srcbar .icm-mini:hover { border-color: #7c5cff; }
+#icm-srcbar #icm-watch.on { background: #fff6dc; border-color: #ffd36b; }
+
+/* 原厂直供标记 */
+.icm-direct { display: inline-block; font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 4px; background: #fff0e6; color: #e05a00; border: 1px solid #ffd2b3; font-weight: 600; }
+
+/* 货源悬浮详情窗 */
+#icm-pop {
+  position: fixed; z-index: 2147483002; display: flex; flex-direction: column; background: #fff; color: #1d2230;
+  border: 1px solid #e2dcff; border-radius: 12px; box-shadow: 0 18px 50px rgba(20, 24, 40, .22); overflow: hidden;
+  font: 12px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+#icm-pop * { box-sizing: border-box; }
+#icm-pop a { color: #4a3bd6; text-decoration: none; }
+#icm-pop .icm-pop-h { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: linear-gradient(90deg, #f5f3ff, #eef4ff); border-bottom: 1px solid #ece8ff; }
+#icm-pop .icm-grow { flex: 1; }
+#icm-pop .icm-stock { color: #0f9a57; }
+#icm-pop .icm-muted { color: #8a90a0; }
+#icm-pop .icm-pop-b { overflow: auto; }
+#icm-pop .icm-pop-it { display: grid; grid-template-columns: 104px 1.3fr 1.3fr 1fr; gap: 14px; padding: 12px 14px; border-bottom: 1px solid #f0f1f6; }
+#icm-pop .icm-pop-it:last-child { border-bottom: 0; }
+#icm-pop .icm-pop-img { width: 104px; height: 104px; border: 1px solid #eceef4; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; color: #b0b5c3; }
+#icm-pop .icm-pop-img img { width: 100%; height: 100%; object-fit: contain; padding: 4px; cursor: zoom-in; transition: transform .2s; }
+#icm-pop .icm-pop-img img:hover { transform: scale(1.06); }
+#icm-pop .icm-pop-model { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+#icm-pop .icm-pop-info span, #icm-pop .icm-pop-t { color: #8a90a0; }
+#icm-pop .icm-pop-t { margin-bottom: 2px; }
+#icm-pop .icm-lad { border-collapse: collapse; }
+#icm-pop .icm-lad th { color: #8a90a0; font-weight: 400; text-align: left; padding: 0 12px 2px 0; font-size: 11px; }
+#icm-pop .icm-lad td { padding: 1px 12px 1px 0; white-space: nowrap; }
+#icm-pop .icm-lad b { color: #1f5fff; font-weight: 600; }
+#icm-pop .icm-ch { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 500; padding: 0 6px; border-radius: 4px; background: #eef0f4; color: #5b6275; }
+#icm-pop .icm-ch.direct { background: #fff0e6; color: #e05a00; }
+#icm-pop .icm-tag-d { display: inline-block; background: #eef0f4; border-radius: 4px; padding: 0 6px; margin-bottom: 2px; color: #4a4f63; }
+
+#icm-pop .icm-pop-stock span, #icm-pop .icm-pop-info span:not(.icm-ch) { color: #8a90a0; }
+#icm-srcbar .icm-brand { font-size: 11px; }
+#icm-srcbar .icm-ds { background: #fff7e6 !important; border-color: #ffd591 !important; }
+#icm-srcbar .icm-mini-hl { background: linear-gradient(135deg, #7c5cff, #4f8cff) !important; color: #fff !important; border-color: transparent !important; }
+
+/* 图片放大预览 */
+#icm-lightbox { position: fixed; inset: 0; z-index: 2147483646; background: rgba(8, 10, 16, .86); display: flex; flex-direction: column; font: 13px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+#icm-lightbox .icm-lb-stage { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#icm-lightbox img { max-width: 80vw; max-height: 78vh; background: #fff; border-radius: 8px; cursor: grab; transition: transform .06s; user-select: none; }
+#icm-lightbox .icm-lb-bar { display: flex; gap: 8px; justify-content: center; align-items: center; padding: 12px; }
+#icm-lightbox .icm-lb-bar button { border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; border-radius: 8px; padding: 6px 12px; cursor: pointer; font: inherit; }
+#icm-lightbox .icm-lb-bar button:hover { background: rgba(255,255,255,.18); }
+#icm-lightbox .icm-lb-zoom { color: #fff; min-width: 48px; text-align: center; }
+#icm-lightbox .icm-lb-tip { color: rgba(255,255,255,.5); text-align: center; padding-bottom: 12px; font-size: 12px; }
+
+/* ================= 深色模式 =================
+   网站本身：反色 + 色相回转（颜色基本保持，明暗反过来），图片和视频再反一次保持原样。
+   滤镜加在 html 上（加在 body 上会让网站右侧的悬浮栏等 position:fixed 元素跟着页面滚走、看不见）；
+   插件自己挂在 html 下的浮层再反一次，保持它们自己的深色样式。 */
+html.icm-dark { background: #0f1115 !important; filter: invert(.9) hue-rotate(180deg); }
+html.icm-dark body { background: #fff !important; }
+html.icm-dark > :not(head):not(body) { filter: invert(1) hue-rotate(180deg); }
+html.icm-dark body img, html.icm-dark body video, html.icm-dark body canvas, html.icm-dark body iframe, html.icm-dark body svg image,
+html.icm-dark body [style*="background-image"] { filter: invert(1) hue-rotate(180deg); }
+/* 公司标注颜色在反色后依然醒目 */
+html.icm-dark body .icm-avoid { filter: invert(1) hue-rotate(180deg); background: #ffe14d !important; color: #3a2d00 !important; }
+
+html.icm-dark #icm-panel { background: #171a21; color: #e6e8ee; border-color: #2a2f3a; }
+html.icm-dark #icm-panel .icm-body, html.icm-dark #icm-panel .icm-foot { background: #171a21; border-color: #2a2f3a; }
+html.icm-dark #icm-panel textarea, html.icm-dark #icm-panel input:not([type=checkbox]) { background: #0f1115; color: #e6e8ee; border-color: #2f3542; }
+html.icm-dark #icm-panel .icm-list { border-color: #2a2f3a; }
+html.icm-dark #icm-panel .icm-item { color: #e6e8ee; border-color: #232833; }
+html.icm-dark #icm-panel .icm-guide, html.icm-dark #icm-panel .icm-howto, html.icm-dark #icm-panel .icm-step { background: #1f1b33; border-color: #3a3260; color: #cfd2e0; }
+html.icm-dark #icm-panel .icm-guide-t { color: #b4a6ff; }
+html.icm-dark #icm-panel .icm-preview { background: #0f1115; color: #cfd2e0; }
+html.icm-dark #icm-panel .icm-btn { background: #222733; color: #e6e8ee; border-color: #343a48; }
+html.icm-dark #icm-panel .icm-btn.primary { background: linear-gradient(135deg, #7c5cff, #4f8cff); color: #fff; }
+html.icm-dark #icm-panel .icm-tag.enterprise { background: #12352a; color: #4ade80; }
+html.icm-dark #icm-panel .icm-tag.personal { background: #2a2f3a; color: #aab0bf; }
+html.icm-dark #icm-pop { background: #171a21; color: #e6e8ee; border-color: #2f2a55; }
+html.icm-dark #icm-pop .icm-pop-h { background: linear-gradient(90deg, #1f1b33, #18233a); border-color: #2f2a55; }
+html.icm-dark #icm-pop .icm-pop-it { border-color: #232833; }
+html.icm-dark #icm-pop a { color: #a99cff; }
+html.icm-dark #icm-pop .icm-lad b { color: #7aa7ff; }
+html.icm-dark #icm-pop .icm-tag-d, html.icm-dark #icm-pop .icm-ch { background: #262b36; color: #cfd2e0; }
+html.icm-dark #icm-pop .icm-ch.direct, html.icm-dark .icm-direct { background: #3a2410; color: #ffb36b; border-color: #6b4012; }
+
+/* 一键复制名片按钮 */
+.icm-copycard { position: absolute; z-index: 99; top: 6px; right: 8px; border: 0; border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  background: linear-gradient(135deg, #7c5cff, #4f8cff); color: #fff !important; font: 600 12px/1.4 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  box-shadow: 0 4px 12px rgba(92, 104, 255, .35); }
+.icm-copycard:hover { filter: brightness(1.1); }
+.icm-copycard.inline { position: static; display: inline-block; margin-left: 10px; vertical-align: middle; padding: 2px 10px; }
+#icm-pop .icm-pop-it.noimg { grid-template-columns: 1.3fr 1.3fr 1fr; }
+
+#icm-pop .icm-tb-price { color: #ff5000; font-size: 16px; }
+html.icm-dark #icm-pop .icm-tb-price { color: #ff8a4c; }
+
+/* 货源条里的实时询价记录列表 */
+#icm-srcbar .icm-live { flex-basis: 100%; background: #fff; border: 1px solid #e3e5ee; border-radius: 8px; padding: 6px 8px; }
+#icm-srcbar .icm-live-h { display: flex; align-items: center; gap: 8px; }
+#icm-srcbar .icm-live-h b { color: #3b2fb8; }
+#icm-srcbar .icm-live-list { max-height: 210px; overflow: auto; margin-top: 4px; }
+#icm-srcbar .icm-live table { width: 100%; border-collapse: collapse; }
+#icm-srcbar .icm-live th { position: sticky; top: 0; background: #fafbff; color: #5b6275; font-weight: 600; text-align: left; padding: 3px 6px; white-space: nowrap; }
+#icm-srcbar .icm-live td { padding: 3px 6px; border-top: 1px solid #f0f1f6; white-space: nowrap; }
+#icm-srcbar .icm-live td.co { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+#icm-srcbar .icm-live tr.valid td { background: #effaf4; }
+#icm-srcbar .icm-live tr.fresh td { animation: icm-live-flash 2s; }
+@keyframes icm-live-flash { from { background: #fff3c4; } }
+#icm-srcbar .icm-live-tag { font-size: 10px; padding: 0 4px; margin-left: 3px; border-radius: 4px; background: #eef0f4; color: #5b6275; }
+#icm-srcbar .icm-live-tag.ent { background: #e3f8ee; color: #0f9a57; }
+#icm-srcbar .icm-live-empty { padding: 6px 2px 2px; }
+
+/* 华强电子网：名片里的手机号是黑字图片，深色模式下跟着页面一起反色，才能看清 */
+html.icm-dark body #card .phone-img img { filter: none !important; }
+
+/* 货源网站开关 */
+#icm-srcbar .icm-srcset-wrap { position: relative; }
+#icm-srcbar .icm-srcset { position: absolute; right: 0; top: calc(100% + 4px); z-index: 50; width: 230px; background: #fff; border: 1px solid #d9dce6; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); padding: 8px 10px; }
+#icm-srcbar .icm-srcset.hidden { display: none; }
+#icm-srcbar .icm-srcset-t { font-weight: 700; margin-bottom: 4px; }
+#icm-srcbar .icm-srcset label { display: inline-flex; align-items: center; gap: 4px; width: 48%; padding: 2px 0; cursor: pointer; color: #1d2230; font-weight: normal; }
+#icm-srcbar .icm-srcset input { margin: 0; width: auto; height: auto; }
+#icm-srcbar .icm-srcset .icm-muted { margin-top: 4px; line-height: 1.4; }
+
+/* 实时列表：直接填报价 */
+#icm-srcbar .icm-live th.fill { background: #fff8ec; color: #9a5b00; }
+#icm-srcbar .icm-live td { vertical-align: middle; }
+#icm-srcbar .icm-live input[data-f], #icm-srcbar .icm-live select[data-f] {
+  box-sizing: border-box; height: 24px; margin: 0; padding: 0 5px; border: 1px solid #dfe2ea; border-radius: 5px; background: #fff; color: #1d2230;
+  font: 12px/22px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; outline: none; box-shadow: none; vertical-align: middle;
+}
+#icm-srcbar .icm-live input[data-f]:focus, #icm-srcbar .icm-live select[data-f]:focus { border-color: #7c5cff; box-shadow: 0 0 0 2px #ece8ff; }
+#icm-srcbar .icm-live .w-qty { width: 64px; } #icm-srcbar .icm-live .w-pr { width: 70px; } #icm-srcbar .icm-live .w-ld { width: 64px; }
+#icm-srcbar .icm-live select[data-f] { width: 84px; padding: 0 2px; }
+#icm-srcbar .icm-live td.pr { white-space: nowrap; }
+#icm-srcbar .icm-live-tax { margin-left: 3px; padding: 0 5px; height: 22px; border-radius: 5px; font: 12px/20px inherit; cursor: pointer; vertical-align: middle; }
+#icm-srcbar .icm-live-tax.t0 { color: #0f9a57; border: 1px solid #bfe8d2; background: #f2fbf6; }
+#icm-srcbar .icm-live-tax.t1 { color: #e05a00; border: 1px solid #f6d2b8; background: #fff6ef; }
+#icm-srcbar .icm-live-best { display: none; margin-left: 3px; font-size: 11px; color: #fff; background: #0f9a57; border-radius: 4px; padding: 0 4px; }
+#icm-srcbar .icm-live tr.best .icm-live-best { display: inline-block; }
+#icm-srcbar .icm-live tr.best input[data-f=price] { color: #0f9a57; font-weight: 700; }
+#icm-srcbar .icm-live td.ops { white-space: nowrap; }
+#icm-srcbar .icm-live td.ops button { height: 22px; padding: 0 8px; margin-right: 4px; border-radius: 5px; border: 1px solid #d9dce6; background: #fff; color: #1d2230; cursor: pointer; font: 12px/20px inherit; }
+#icm-srcbar .icm-live .icm-live-ok { color: #0f9a57 !important; border-color: #bfe8d2 !important; font-weight: 700 !important; }
+#icm-srcbar .icm-live tr.valid .icm-live-ok { background: #0f9a57 !important; color: #fff !important; border-color: #0f9a57 !important; }
+#icm-srcbar .icm-live-chk { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: #5b6275; font-weight: normal; margin: 0; }
+#icm-srcbar .icm-live-chk input { margin: 0; width: auto; height: auto; }
+#icm-srcbar .icm-live-list { max-height: 260px; }
+
+/* 实时列表：队友的记录（只读） */
+#icm-srcbar .icm-live tr.ro td { background: #fafbff; color: #3b4152; }
+#icm-srcbar .icm-live tr.ro.valid td { background: #f1faf5; }
+#icm-srcbar .icm-live-who { font-size: 11px; padding: 0 6px; border-radius: 4px; background: #eef2ff; color: #3b4fd6; }
+#icm-srcbar .icm-live-okmark { color: #0f9a57; font-weight: 700; }
+
+/* 实时列表：删除按钮 */
+#icm-srcbar .icm-live td.ops .icm-live-del { border-color: transparent !important; color: #9aa0ab !important; padding: 0 5px !important; }
+#icm-srcbar .icm-live td.ops .icm-live-del:hover { color: #e5162b !important; background: #fff1f2 !important; }
+
+/* 货源对比：蓝色极光跑马灯边框（一束亮光沿边框转圈） */
+@property --icm-aurora { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+#icm-srcbar { position: relative; isolation: isolate; border-color: transparent !important; box-shadow: 0 0 14px rgba(79, 140, 255, .28); animation: icm-aurora-glow 3s ease-in-out infinite; }
+#icm-srcbar::before {
+  content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 10px; pointer-events: none; z-index: 0;
+  background: conic-gradient(from var(--icm-aurora), rgba(79,140,255,.25) 0deg, rgba(124,92,255,.25) 200deg, #00e5ff 270deg, #4f8cff 300deg, #7c5cff 330deg, rgba(79,140,255,.25) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: icm-aurora-spin 4s linear infinite;
+}
+@keyframes icm-aurora-spin { to { --icm-aurora: 360deg; } }
+@keyframes icm-aurora-glow { 0%, 100% { box-shadow: 0 0 10px rgba(79,140,255,.22); } 50% { box-shadow: 0 0 18px rgba(0,229,255,.38); } }
+@media (prefers-reduced-motion: reduce) { #icm-srcbar, #icm-srcbar::before { animation: none; } }
+
+/* IC交易网右侧浮动栏：询价记录本入口（替换原来的“价格”） */
+#floatNav .icm-recnavdiv .icm-recnav { display: block; width: 38px; height: auto !important; padding: 5px 0 4px; text-align: center; cursor: pointer; color: #555; text-decoration: none; }
+#floatNav .icm-recnavdiv { height: auto !important; overflow: visible !important; }
+#floatNav .icm-recnavdiv .icm-recicon { display: block; height: 17px; line-height: 0; color: #ff7a1a; }
+#floatNav .icm-recnavdiv .icm-recicon svg { display: inline-block; }
+#floatNav .icm-recnavdiv .fixedText { display: block; font-size: 11px; line-height: 13px; margin-top: 3px; color: #333; }
+#floatNav .icm-recnavdiv .icm-recnav:hover { background: #ff6a00; }
+#floatNav .icm-recnavdiv .icm-recnav:hover .icm-recicon, #floatNav .icm-recnavdiv .icm-recnav:hover .fixedText { color: #fff; }
+
+/* 右侧栏入口：华强电子网 / 正能量网 */
+#right-side-fixed li.icm-side { height: auto !important; cursor: pointer; }
+#right-side-fixed li.icm-side .item-con { height: auto !important; padding: 6px 0 5px; text-align: center; }
+#right-side-fixed li.icm-side .icm-sideicon { display: block; height: 18px; line-height: 0; color: #ff7a1a; }
+#right-side-fixed li.icm-side .name { line-height: 14px !important; font-size: 11px !important; margin-top: 3px; }
+#bartrigger .icm-side { cursor: pointer; }
+#bartrigger .icm-side .iconbox { display: flex; align-items: center; justify-content: center; }
+#bartrigger .icm-side .icm-sideicon { line-height: 0; color: #ff7a1a; }
+#bartrigger .icm-side .title { line-height: 13px !important; font-size: 11px !important; white-space: normal !important; }
+
+/* 下半屏面板：询价记录本（从底部弹出，上半屏仍能看到网页） */
+#icm-drawer { position: fixed; inset: 0; z-index: 2147483600; pointer-events: none; }
+#icm-drawer .icm-drawer-mask { position: absolute; inset: 0; background: rgba(15, 17, 21, .18); opacity: 0; transition: opacity .2s; }
+#icm-drawer .icm-drawer-panel { position: absolute; left: 0; right: 0; bottom: 0; height: 50vh; min-height: 320px; background: #f6f7fb;
+  box-shadow: 0 -8px 28px rgba(0,0,0,.18); border-radius: 12px 12px 0 0; overflow: hidden; display: flex; flex-direction: column; transform: translateY(100%); transition: transform .22s ease; }
+#icm-drawer.open { pointer-events: auto; }
+#icm-drawer.open .icm-drawer-mask { opacity: 1; }
+#icm-drawer.open .icm-drawer-panel { transform: none; }
+#icm-drawer header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #fff; background: linear-gradient(135deg, #7c5cff, #4f8cff);
+  font: 13px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+#icm-drawer header b { font-size: 14px; }
+#icm-drawer .icm-drawer-pn { opacity: .85; font-size: 12px; }
+#icm-drawer .icm-grow { flex: 1; }
+#icm-drawer header button { border: 1px solid rgba(255,255,255,.5); background: rgba(255,255,255,.15); color: #fff; border-radius: 6px; padding: 3px 10px; cursor: pointer; font: inherit; }
+#icm-drawer header button:hover { background: rgba(255,255,255,.3); }
+#icm-drawer iframe { flex: 1; width: 100%; border: 0; background: #f6f7fb; }
+
+/* 实时列表：QQ 可点击、公司名片 */
+#icm-srcbar .icm-live a.icm-live-qq { color: #2f6bff !important; text-decoration: none !important; cursor: pointer; }
+#icm-srcbar .icm-live a.icm-live-qq:hover { text-decoration: underline !important; }
+#icm-srcbar .icm-live td.co { cursor: default; }
+#icm-srcbar .icm-live td.co:hover { color: #3b2fb8; text-decoration: underline dotted; }
+#icm-cardpop { position: absolute; z-index: 2147483500; display: none; background: #fff; border-radius: 8px; box-shadow: 0 10px 32px rgba(0,0,0,.22); overflow: hidden; }
+#icm-cardpop.show { display: block; }
+#icm-cardpop .icm-cardpop-none { padding: 12px 14px; max-width: 320px; font: 12px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; color: #5b6275; }
+#icm-cardpop .icm-cardpop-none b { display: block; color: #1d2230; font-size: 13px; margin-bottom: 4px; }
+
+/* 右侧栏入口图标：📒（和货源条一致） */
+.icm-rec-emoji { font-size: 16px; line-height: 18px; display: inline-block; }
+#floatNav .icm-recnavdiv .icm-recicon, #right-side-fixed li.icm-side .icm-sideicon, #bartrigger .icm-side .icm-sideicon { line-height: 18px; height: 18px; }
+
+/* 批量询价：询价内容可直接修改 */
+#icm-panel textarea.icm-preview-edit { display: block; width: 100%; box-sizing: border-box; resize: vertical; border: 1px solid #d9dce6; min-height: 64px; line-height: 1.6; }
+#icm-panel textarea.icm-preview-edit:focus { outline: none; border-color: #7c5cff; box-shadow: 0 0 0 2px #ece8ff; }
+/* 删除按钮第一次点击后变成 ✅ */
+#icm-srcbar .icm-live td.ops .icm-live-del.armed { color: #0f9a57 !important; background: #effaf4 !important; border-color: #bfe8d2 !important; }
+#icm-panel .icm-warn { color: #e05a00; }
+#icm-panel .icm-copystate { margin-top: 6px; font-size: 12px; }
+#icm-panel .icm-copystate.ok { color: #0f9a57; }
+#icm-panel .icm-copystate.bad { color: #e5162b; font-weight: 600; }
+
+/* 实时列表适配网站宽度：不超出货源对比框（IC交易网结果区较窄） */
+#icm-srcbar { box-sizing: border-box; max-width: 100%; }
+#icm-srcbar .icm-live { box-sizing: border-box; min-width: 0; width: 100%; max-width: 100%; overflow: hidden; }
+#icm-srcbar .icm-live-list { overflow: auto; max-width: 100%; }
+#icm-srcbar .icm-live table { width: 100%; table-layout: auto; }
+#icm-srcbar .icm-live th, #icm-srcbar .icm-live td { padding: 3px 4px; }
+#icm-srcbar .icm-live td.co { max-width: 190px; }
+#icm-srcbar .icm-live td:nth-child(5) { max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+#icm-srcbar .icm-live .w-qty { width: 56px; } #icm-srcbar .icm-live .w-pr { width: 62px; } #icm-srcbar .icm-live .w-ld { width: 56px; }
+#icm-srcbar .icm-live select[data-f] { width: 74px; }
+#icm-srcbar .icm-live td.ops button { padding: 0 6px; margin-right: 3px; }
+#icm-srcbar .icm-live-h { flex-wrap: wrap; row-gap: 4px; }
+/* 再紧凑一些：IC交易网约 900px 宽也能一屏放下 */
+#icm-srcbar .icm-live table { font-size: 12px; }
+#icm-srcbar .icm-live th, #icm-srcbar .icm-live td { padding: 3px 3px; }
+#icm-srcbar .icm-live td.co { max-width: 150px; }
+#icm-srcbar .icm-live td:nth-child(5) { max-width: 76px; }
+#icm-srcbar .icm-live .icm-live-tag { margin-left: 2px; padding: 0 3px; }
+#icm-srcbar .icm-live .w-qty { width: 50px; } #icm-srcbar .icm-live .w-pr { width: 54px; } #icm-srcbar .icm-live .w-ld { width: 50px; }
+#icm-srcbar .icm-live select[data-f] { width: 64px; }
+#icm-srcbar .icm-live-tax { padding: 0 3px; margin-left: 2px; }
+#icm-srcbar .icm-live-best { margin-left: 2px; padding: 0 3px; }
+#icm-srcbar .icm-live td.ops button { padding: 0 5px; margin-right: 2px; }
+#icm-srcbar .icm-live td.pr { position: relative; }
+#icm-srcbar .icm-live tr.best .icm-live-best { position: absolute; left: 2px; top: -3px; font-size: 9px; line-height: 12px; padding: 0 3px; margin: 0; z-index: 1; }
+#icm-srcbar .icm-live td.co { max-width: 132px; }
+
+/* 右侧浮动栏只留插件的“批量询价”“询价记录本” */
+.icm-sidehide { display: none !important; }
+.icm-sideicon img.icm-qiaqia { width: 22px; height: 22px; display: inline-block; vertical-align: middle; }
+
+/* 每家公司后面的勾选框 */
+.icm-pick { position: absolute !important; top: 50%; transform: translateY(-50%); left: auto; z-index: 5; display: flex !important; align-items: center; justify-content: center;
+  width: 22px; height: 22px; margin: 0 !important; padding: 0; cursor: pointer; border-radius: 5px; float: none !important; }
+.icm-pick:hover { background: rgba(124, 92, 255, .12); }
+.icm-pick input { width: 15px !important; height: 15px !important; margin: 0 !important; cursor: pointer; accent-color: #6d4dff; position: static !important; opacity: 1 !important; display: inline-block !important; }
+
+/* 公司卡片顶部：一键复制 */
+#icm-cardpop .icm-cardpop-tools { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: #f5f3ff; border-bottom: 1px solid #e6e1ff;
+  font: 12px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; color: #3b2fb8; }
+#icm-cardpop .icm-cardpop-name { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
+#icm-cardpop .icm-cardpop-copy { border: 0; border-radius: 6px; padding: 3px 10px; cursor: pointer; white-space: nowrap;
+  background: linear-gradient(135deg, #7c5cff, #4f8cff); color: #fff; font: 600 12px/1.4 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+#icm-cardpop .icm-cardpop-copy:hover { filter: brightness(1.1); }
+html.icm-dark #icm-cardpop .icm-cardpop-tools { background: #221d3a; border-color: #3a3160; color: #c9bfff; }
+#right-side-fixed li.icm-side-batch { height: auto !important; }
+#right-side-fixed li.icm-side-batch .item-con { height: auto !important; padding: 6px 0 5px; text-align: center; }
+#right-side-fixed li.icm-side-batch .icm-sideicon { display: block; height: 22px; line-height: 0; }
+#right-side-fixed li.icm-side-batch .name { line-height: 14px !important; font-size: 11px !important; margin-top: 3px; }
+
+/* 批量询价图标（电脑） */
+img.icm-batch-ico { height: 18px; width: auto; display: inline-block; vertical-align: middle; }
+#bartrigger .icm-side img.icm-batch-ico { height: 20px; }
+#icm-drawer .icm-drawer-tip { padding: 14px 16px; background: #fff8ec; color: #9a5b00; font: 13px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+#icm-drawer .icm-drawer-tip button { margin-left: 10px; border: 1px solid #f0c49a; background: #fff; color: #e07000; border-radius: 6px; padding: 3px 10px; cursor: pointer; }

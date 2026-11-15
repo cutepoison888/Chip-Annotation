@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="stylesheet" href="ui.css">
+<style>body { width: 340px; }  .srcs { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 2px 0 6px; font-size: 12px; }
+  .srcs label { display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+  .srcs input { width: auto; margin: 0; }
+</style></head>
+<body>
+<div class="head"><b id="title">芯标注 · IC采购助手</b><div class="sub"><span id="subtitle">免费 · 本地运行 · 安全 · 无后门</span> · <span id="ver"></span></div></div>
+<div class="wrap">
+  <div id="stale" class="card hidden" style="border-color:#ffb4bb;background:#fff5f6">
+    <b style="color:#e5162b">⚠️ 插件后台还是旧版本</b>
+    <p class="muted" style="margin:4px 0 8px">新功能需要刷新插件后才能用：打开扩展管理页，在“芯标注”卡片上点刷新按钮 ⟳，然后刷新 IC交易网页面。</p>
+    <button id="openExt" class="primary">打开扩展管理页</button>
+  </div>
+  <div class="card" data-need="marks">
+    <div class="stats">
+      <div><b id="nOriginal" class="c-original">0</b>原装</div>
+      <div><b id="nAvoid" class="c-avoid">0</b>避雷</div>
+      <div><b id="nCaution" class="c-caution">0</b>注意</div>
+      <div title="已经确定是私人号还是企业号的 QQ 数量（管理员审核通过的共享记录 + 你本机实测的记录）"><b id="nQQ" class="c-qq">0</b>已识别QQ</div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <span id="syncInfo" class="muted">尚未同步</span>
+      <button id="syncBtn">立即同步</button>
+    </div>
+    <div id="syncErr" class="err"></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span><b>QQ 助手</b><br><span class="muted">点 QQ 图标复制号码，识别私人号 / 企业号</span></span><label class="switch"><input type="checkbox" id="qqCopy"><span></span></label></div>
+    <div class="row"><span><b>点私人 QQ 时</b><br><span class="muted">企业 QQ 始终直接打开会话</span></span>
+      <select id="personalQQ" style="width:auto"><option value="copy">仅复制号码</option><option value="open">复制并打开 QQ 聊天框</option></select></div>
+    <div class="row"><span><b>页面精简</b><br><span class="muted">隐藏广告横幅等多余内容</span></span><label class="switch"><input type="checkbox" id="hideAds"><span></span></label></div>
+    <div class="row"><span><b>深色模式</b></span>
+      <select id="darkMode" style="width:auto"><option value="off">关闭</option><option value="auto">跟随系统</option><option value="on">总是深色</option></select></div>
+    <div class="row"><span><b>货源助手</b><br><span class="muted">自动查云汉 / 圣禾堂 / 贸泽 / 得捷 / 淘宝（会短暂打开后台标签页）</span></span><label class="switch"><input type="checkbox" id="autoTabs"><span></span></label></div>
+    <div class="srcs" id="srcs"><span class="muted">对比哪些网站：</span>
+      <label><input type="checkbox" data-src="szlcsc">立创</label><label><input type="checkbox" data-src="ickey">云汉</label><label><input type="checkbox" data-src="bomman">圣禾堂</label><label><input type="checkbox" data-src="mouser">贸泽</label><label><input type="checkbox" data-src="digikey">得捷</label><label><input type="checkbox" data-src="taobao">淘宝</label><label><input type="checkbox" data-src="ti">TI 官网</label></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><h4 style="margin:0">询价记录本</h4><button id="recordsBtn" class="primary">打开记录本</button></div>
+    <div class="row" data-need="team"><span><b>👥 团队共享</b><br><span class="muted" id="teamState">用邀请码和同事共享询价记录（加密）</span></span><button id="teamBtn">打开</button></div>
+    <p class="muted" style="margin:6px 0 0">点 QQ 自动记录公司、型号、品牌、批次，在记录本里直接填报价。<span id="logCount"></span></p>
+  </div>
+
+  <div class="card" data-need="watch">
+    <div class="row"><h4 style="margin:0">库存 / 价格变化提醒</h4><span><button id="testNotify" title="弹出一条示例通知，看看提醒长什么样">模拟提醒</button> <button id="checkNow">立即检查</button></span></div>
+    <p class="muted" style="margin:4px 0 6px">添加方法：在三个网站搜索页点货源对比条上的“🔔 关注库存变化”，或在立创、云汉、圣禾堂、贸泽、得捷的商品旁边点“🔔 关注”。只查“⚙ 货源网站”里勾选的<b>立创、云汉、圣禾堂、得捷、贸泽</b>；<b>库存</b>变多、变少、到货、卖完，或<b>最低价</b>涨、降时，弹出电脑的系统通知，写明是哪个网站、从多少变成多少，点通知打开那个网站。看不到通知时，到 Mac 的“系统设置 → 通知 → Google Chrome”里允许通知。<br>需要浏览器开着才会检查（关掉所有窗口但没退出也可以）；浏览器关了不检查，下次打开时如果已超过间隔，会自动补查一次。</p>
+    <div class="row"><span>检查间隔</span><select id="watchMinutes" style="width:auto"><option value="30">每 30 分钟</option><option value="60">每 1 小时</option><option value="120">每 2 小时</option><option value="240">每 4 小时</option><option value="720">每 12 小时</option><option value="1440">每天一次</option></select></div>
+    <div id="watchList"></div>
+    <div id="watchEvents"></div>
+  </div>
+
+  <div class="card" data-need="submit">
+    <h4>提交给管理员审核</h4>
+    <div class="row">
+      <button id="markBtn" class="primary" style="flex:1">标注公司 / 批量导入</button>
+      <button id="appealBtn">申诉</button>
+    </div>
+    <p class="muted" style="margin:8px 0 0">提交后不会立即生效，管理员审核通过后所有人同步可见。也可以在 IC交易网页面上右键使用。</p>
+  </div>
+
+  <div class="card legend" data-need="marks">
+    <span class="c-original">红字＝原装</span><span style="background:#ffe14d;padding:0 4px;border-radius:3px;color:#3a2d00">黄底＝避雷</span><span class="c-caution">橙字＝注意</span>
+    <div class="muted" style="margin-top:6px">QQ：绿圈＝企业号可直接聊；灰色带“加”＝私人号需加好友（点击即复制）。浅色圈＝推测。按住 Shift 点击走网站原流程。</div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button id="accountsBtn" style="flex:1">🔑 网站账号登录状态</button>
+      <button id="logsBtn" style="flex:1" data-need="debugUI">🪵 调试日志</button>
+    </div>
+  </div>
+
+  <details class="card" data-need="debugUI">
+    <summary>服务器地址</summary>
+    <input id="apiBase" style="margin-top:8px" placeholder="https://你的域名">
+    <div class="row"><span id="apiSaved" class="ok"></span><button id="apiSave">保存</button></div>
+  </details>
+</div>
+<script src="build.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
