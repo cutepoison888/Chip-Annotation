@@ -396,3 +396,12 @@ img.icm-batch-ico { height: 18px; width: auto; display: inline-block; vertical-a
 #bartrigger .icm-side img.icm-batch-ico { height: 20px; }
 #icm-drawer .icm-drawer-tip { padding: 14px 16px; background: #fff8ec; color: #9a5b00; font: 13px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
 #icm-drawer .icm-drawer-tip button { margin-left: 10px; border: 1px solid #f0c49a; background: #fff; color: #e07000; border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+
+/* 批量询价：已经询价过的公司（绿色） */
+#icm-panel .icm-item.icm-asked .icm-name { color: #0f9a57 !important; }
+#icm-panel .icm-item.icm-asked input { accent-color: #16a34a; }
+#icm-panel .icm-asked-t { flex: none; font-size: 11px; padding: 0 6px; border-radius: 8px; background: #e3f8ee; color: #0f9a57; }
+.icm-pick.icm-asked { background: #e3f8ee; box-shadow: inset 0 0 0 1.5px #22c55e; border-radius: 5px; }
+.icm-pick.icm-asked input { accent-color: #16a34a; outline: 2px solid #22c55e; outline-offset: -1px; border-radius: 3px; }
+html.icm-dark #icm-panel .icm-item.icm-asked .icm-name { color: #3ddc84 !important; }
+html.icm-dark .icm-pick.icm-asked { background: rgba(34, 197, 94, .15); }

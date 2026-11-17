@@ -308,12 +308,37 @@
       const siteBox = [...row.querySelectorAll('input[type=checkbox]')].find((x) => x.checked && (SITE === 'hqew' || x.classList.contains('icm-pick-box') || visible(x)));
       let info = {};
       try { info = ADAPTER.info(row); } catch {}
-      out.push({ company, info, qq: pick.qq, type: pick.type, sure: pick.sure, status: status ? status[0] : '', siteChecked: !!(siteBox && siteBox.checked) });
+      const ownBox = row.querySelector(':scope > .icm-pick input');
+      out.push({ company, info, qq: pick.qq, type: pick.type, sure: pick.sure, status: status ? status[0] : '', siteChecked: !!(siteBox && siteBox.checked), pickChecked: !!(ownBox && ownBox.checked) });
     }
     return out;
   }
 
   let batch = null; // { list, i, text }
+
+  // 批量询价里已经轮到过的公司（这个型号、这个标签页内记住，刷新页面也还在）：面板里名字变绿，页面上的勾选框变绿并取消勾选
+  const askedKey = () => 'icm-asked|' + SITE + '|' + keyword().toUpperCase();
+  const askedSet = () => { try { return new Set(JSON.parse(sessionStorage.getItem(askedKey()) || '[]')); } catch { return new Set(); } };
+  function markAsked(company) {
+    const s = askedSet();
+    if (s.has(company)) return;
+    s.add(company);
+    try { sessionStorage.setItem(askedKey(), JSON.stringify([...s])); } catch {}
+  }
+  // 页面上每家公司后面的勾选框：已询价的变绿、取消勾选（只在刚询价完时取消一次，之后用户自己再勾可以）
+  function paintAskedPicks(uncheck) {
+    const s = askedSet();
+    for (const row of document.querySelectorAll(ADAPTER.rowSel)) {
+      const lab = row.querySelector(':scope > .icm-pick');
+      if (!lab) continue;
+      const co = companyOfRow(row);
+      const asked = !!co && s.has(co);
+      lab.classList.toggle('icm-asked', asked);
+      lab.title = asked ? '这家已经批量询价过了（绿色）。再勾上可以重新询价' : '勾选后点右侧“批量询价”，这家公司会自动选上';
+      const box = lab.querySelector('input');
+      if (asked && uncheck && box && box.checked) box.checked = false;
+    }
+  }
 
   // 按钮放进 IC交易网结果栏（“商务通批量询价”旁边），跟着页面走，不会盖住页面内容
   function ensureFab() {
@@ -348,9 +373,12 @@
     // 默认勾选：如果你在 IC交易网页面上勾了行，就用你勾的；否则勾前 20 家企业 QQ（避雷的不勾）
     const fromSite = rows.some((r) => r.siteChecked);
     let quota = BATCH_MAX;
+    const asked = askedSet();
     rows.forEach((r) => {
+      r.asked = asked.has(r.company);
       // 默认一家都不勾；只有在网站列表里自己勾过的才带过来
-      r.preChecked = fromSite && r.siteChecked && quota-- > 0;
+      // 已询价的公司不再自动带过来，除非你在它后面的绿色勾选框里重新勾上
+      r.preChecked = fromSite && r.siteChecked && (!r.asked || r.pickChecked) && quota-- > 0;
     });
     panel = document.createElement('div');
     panel.id = 'icm-panel';
@@ -380,9 +408,9 @@
           <button class="icm-link" data-sel="none">清空</button>
         </div>
         <div class="icm-list">${rows.map((r, i) => `
-          <label class="icm-item">
+          <label class="icm-item ${r.asked ? 'icm-asked' : ''}" ${r.asked ? 'title="这家已经询价过了，再勾上可以重新询价"' : ''}>
             <input type="checkbox" data-i="${i}" data-co="${esc(r.company)}" ${r.preChecked ? 'checked' : ''}>
-            <span class="icm-name ${r.status ? 'icm-' + r.status : ''}">${esc(r.company)}</span>
+            <span class="icm-name ${r.status ? 'icm-' + r.status : ''}">${esc(r.company)}</span>${r.asked ? '<span class="icm-asked-t">已询价</span>' : ''}
             <span class="icm-tag ${r.type}">${r.type === 'enterprise' ? '企业' : '私人'}${r.sure ? '' : '?'}</span>
             <span class="icm-muted">${r.qq}</span>
           </label>`).join('') || '<div class="icm-muted" style="padding:12px">本页没有找到带 QQ 的供应商</div>'}
@@ -394,6 +422,7 @@
       </div>`;
     document.documentElement.appendChild(panel);
     document.documentElement.classList.add('icm-drawer-open');
+    panel._rows = rows;
     const boxes = () => [...panel.querySelectorAll('.icm-list input[type=checkbox]')];
     const startBtn = panel.querySelector('#icm-start');
     const refreshCount = () => {
@@ -407,7 +436,7 @@
       let left = BATCH_MAX;
       boxes().forEach((x) => {
         const r = rows[x.dataset.i];
-        const want = b.dataset.sel === 'ent' ? r.type === 'enterprise' && r.status !== 'avoid' : false;
+        const want = b.dataset.sel === 'ent' ? r.type === 'enterprise' && r.status !== 'avoid' && !r.asked : false;
         x.checked = want && left-- > 0;
       });
       refreshCount();
@@ -433,6 +462,7 @@
   }
 
   function closePanel() {
+    if (batch) paintAskedPicks(true); // 询价中途关掉面板：轮到过的也标绿
     batch = null;
     const panel = document.getElementById('icm-panel');
     if (panel) panel.remove();
@@ -441,11 +471,29 @@
 
   function backToChoose(panel) {
     batch = null;
+    // 刚才轮到过的公司：名字变绿 + “已询价”，取消勾选；页面上的勾选框也变绿、取消勾选
+    const asked = askedSet();
+    for (const x of panel.querySelectorAll('.icm-list input[type=checkbox]')) {
+      const r = panel._rows && panel._rows[x.dataset.i];
+      if (!asked.has(x.dataset.co)) continue;
+      if (r) r.asked = true;
+      x.checked = false;
+      const item = x.closest('.icm-item');
+      if (item && !item.classList.contains('icm-asked')) {
+        item.classList.add('icm-asked');
+        item.title = '这家已经询价过了，再勾上可以重新询价';
+        item.querySelector('.icm-name').insertAdjacentHTML('afterend', '<span class="icm-asked-t">已询价</span>');
+      }
+    }
+    paintAskedPicks(true);
     panel.querySelector('#icm-run').classList.add('hidden');
     panel.querySelector('#icm-choose').classList.remove('hidden');
     const foot = panel.querySelector('#icm-foot');
     foot.innerHTML = '';
     foot.appendChild(panel._startBtn);
+    const n = [...panel.querySelectorAll('.icm-list input[type=checkbox]')].filter((x) => x.checked).length;
+    panel._startBtn.textContent = n ? `开始询价（已选 ${n} 家）` : '请先勾选公司';
+    panel._startBtn.disabled = !n;
   }
 
   async function step(panel) {
@@ -462,6 +510,7 @@
     }
     const cur = batch.list[batch.i];
     const total = batch.list.length;
+    markAsked(cur.company);
     const isEnt = cur.type === 'enterprise';
     const ci = cur.info || {};
     // 打开了 QQ 会话的才记入询价记录本：企业号；私人号只有在设置为“复制并打开 QQ 聊天框”时才会打开
@@ -520,7 +569,7 @@
   }
 
 
-  // ---------- 货源对比条 + 关注库存 + 询价记录入口 ----------
+  // ---------- 货源对比条 + 库存价格监控 + 询价记录入口 ----------
   const SITES = [['szlcsc', '立创商城'], ['ickey', '云汉芯城'], ['bomman', '圣禾堂'], ['mouser', '贸泽'], ['digikey', '得捷'], ['taobao', '淘宝'], ['ti', 'TI 官网']];
   const TAB_SITES = ['ickey', 'bomman', 'mouser', 'digikey', 'taobao'];
   // 用户可以关掉不需要的货源网站（关掉的不显示、不查询、不打开后台标签页）
@@ -835,8 +884,9 @@
     const btn = document.getElementById('icm-watch');
     if (!btn) return;
     const { watches = [] } = await chrome.storage.local.get('watches');
-    const on = watches.some((w) => w.pn.toUpperCase() === keyword().toUpperCase());
-    btn.textContent = on ? '🔔 已关注库存' : '🔔 关注库存变化';
+    const on = watches.some((w) => w.kind !== 'item' && w.pn.toUpperCase() === keyword().toUpperCase());
+    btn.textContent = on ? '🔔 已加入库存价格监控' : '🔔 加入库存价格监控';
+    btn.title = on ? '已在库存价格监控里，点击移出' : '把这个型号加入库存价格监控：定时检查货源对比里开着的网站，库存或价格有变化弹出电脑通知';
     btn.classList.toggle('on', on);
     btn.dataset.on = on ? '1' : '';
   }
@@ -1077,7 +1127,7 @@
       <span class="icm-grow"></span>
       <span class="icm-srcset-wrap"><button type="button" class="icm-mini" id="icm-srcset" title="选择要对比的货源网站">⚙ 货源网站</button><div class="icm-srcset hidden" id="icm-srcset-menu"></div></span>
       <button type="button" class="icm-mini" id="icm-refresh" title="重新查询">⟳ 刷新</button>
-      ${BUILD.watch === false ? '' : '<button type="button" class="icm-mini" id="icm-watch">🔔 关注库存变化</button>'}
+      ${BUILD.watch === false ? '' : '<button type="button" class="icm-mini" id="icm-watch" title="把这个型号加入库存价格监控：定时检查货源对比里开着的网站，库存或价格有变化弹出电脑通知">🔔 加入库存价格监控</button><button type="button" class="icm-mini" id="icm-watchpage" title="打开库存价格监控页面：所有监控的型号和商品、下次检查时间、加入前后的库存和价格对比">📈 库存价格监控</button>'}
       <div class="icm-live" id="icm-live"></div>`;
     at.parent.insertBefore(bar, at.before);
     bar.querySelector('#icm-refresh').onclick = () => SITES.forEach(([k]) => { if (k !== 'ti' && (k === 'szlcsc' || state.settings.autoTabs || (srcState[k] && srcState[k].r))) querySource(k, true); });
@@ -1100,15 +1150,19 @@
       const b = e.currentTarget;
       if (b.dataset.on) {
         await send({ type: 'removeWatch', pn: keyword() });
-        toast('已取消关注');
+        toast('已移出库存价格监控');
       } else {
-        b.textContent = '🔔 正在记录当前库存…';
-        const r = await send({ type: 'addWatch', pn: keyword() });
+        // 只监控货源对比里开着的网站（立创、云汉、圣禾堂、贸泽、得捷；淘宝、TI 不在监控范围内）
+        const sites = ['szlcsc', 'ickey', 'bomman', 'digikey', 'mouser'].filter((k) => srcOn(k));
+        if (!sites.length) { toast('货源对比里没有开着的货源网站（立创、云汉、圣禾堂、贸泽、得捷），请先在“⚙ 货源网站”里勾选', 5000); return; }
+        b.textContent = '🔔 正在记录当前库存和价格…';
+        const r = await send({ type: 'addWatch', pn: keyword(), sites, from: SITE });
         const every = (m) => (m >= 1440 ? '每天' : m >= 60 ? `每 ${m / 60} 小时` : `每 ${m} 分钟`);
-        toast(r && r.ok ? (r.exists ? `${keyword()} 已经在关注了` : `已关注 ${keyword()}：${every(r.minutes || 120)}检查一次 ${(r.sites || []).join('、')}，库存有变化会弹出系统通知`) : (r && r.error) || '关注失败', 5000);
+        toast(r && r.ok ? (r.exists ? `${keyword()} 已经在库存价格监控里了` : `已加入库存价格监控：${every(r.minutes || 120)}检查一次 ${(r.sites || []).join('、')} 的 ${keyword()}，有变化弹出电脑通知。点“📈 库存价格监控”查看`) : (r && r.error) || '加入失败', 6000);
       }
       paintWatchBtn();
     };
+    if (bar.querySelector('#icm-watchpage')) bar.querySelector('#icm-watchpage').onclick = () => send({ type: 'openWatch', pn: keyword() });
     paintBar();
     paintWatchBtn();
     paintLive();
@@ -1387,6 +1441,7 @@
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push([row, lab]);
     }
+    paintAskedPicks(false);
     for (const list of groups.values()) {
       let x = Math.max(...list.map(([row]) => qqContentRight(row))) + 8;
       if (x <= 8) continue;
@@ -1624,6 +1679,7 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && (changes.data || changes.settings || changes.localQQ)) load();
+    if (area === 'local' && changes.watches) paintWatchBtn();
     if (area === 'local' && (changes.inquiryLog || changes.liveListFolded || changes.liveOnlyValid || changes.teamLog || changes.team)) paintLive(!!(changes.liveListFolded || changes.liveOnlyValid));
   });
   chrome.runtime.onMessage.addListener((msg, _s, reply) => {

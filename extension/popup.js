@@ -34,13 +34,10 @@ async function renderRest(s) {
   const { inquiryLog = [], watches = [], watchEvents = [] } = await chrome.storage.local.get(['inquiryLog', 'watches', 'watchEvents']);
   $('#logCount').textContent = `目前 ${inquiryLog.length} 条。`;
   const t = (x) => (x ? new Date(x).toLocaleString('zh-CN', { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-');
-  const L = { szlcsc: '立创', ickey: '云汉', bomman: '圣禾堂', mouser: '贸泽', digikey: '得捷' };
-  if (!$('#watchList')) return;
-  $('#watchList').innerHTML = watches.length ? watches.map((w) => `<div class="row" style="border-top:1px solid #f0f1f6">
-      <span><b>${esc(w.pn)}</b><br><span class="muted">${Object.entries(w.last || {}).filter(([k, v]) => L[k] && v && typeof v === 'object').map(([k, v]) => `${L[k]} ${Number(v.stock).toLocaleString('zh-CN')}`).join(' · ') || '下次检查后显示'} · 检查于 ${t(w.lastCheck)}</span></span>
-      <button data-unwatch="${esc(w.pn)}">取消</button></div>`).join('') : '<p class="muted" style="margin:0">还没有关注的型号</p>';
-  $('#watchEvents').innerHTML = watchEvents.slice(0, 5).map((e) => `<div class="muted" style="margin-top:6px">🔔 ${t(e.time)} <b style="color:#1d2230">${esc(e.pn)}</b>：${esc(e.changes.join('；'))}</div>`).join('');
-  document.querySelectorAll('[data-unwatch]').forEach((b) => (b.onclick = async () => { await chrome.runtime.sendMessage({ type: 'removeWatch', pn: b.dataset.unwatch }); render(); }));
+  if (!$('#watchSum')) return;
+  const a = await chrome.alarms.get('watch');
+  $('#watchSum').textContent = watches.length ? `监控 ${watches.length} 条${a ? ` · 下次检查 ${t(a.scheduledTime)}` : ''}` : '还没有监控的商品';
+  $('#watchEvents').innerHTML = watchEvents.slice(0, 2).map((e) => `<div class="muted" style="margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🔔 ${t(e.time)} <b style="color:#1d2230">${esc(e.pn)}</b>：${esc(e.changes.join('；'))}</div>`).join('');
 }
 
 async function saveSetting(patch) {
@@ -77,8 +74,9 @@ document.querySelectorAll('[data-src]').forEach((c) => (c.onchange = async () =>
   saveSetting({ sources: { ...((settings && settings.sources) || {}), [c.dataset.src]: c.checked } });
 }));
 $('#recordsBtn').onclick = () => chrome.runtime.sendMessage({ type: 'openRecords' }).then((r) => { if (!r) chrome.tabs.create({ url: chrome.runtime.getURL('records.html') }); });
-if ($('#testNotify')) $('#testNotify').onclick = () => chrome.runtime.sendMessage({ type: 'watchTest' });
-if ($('#checkNow')) $('#checkNow').onclick = async () => { $('#checkNow').disabled = true; $('#checkNow').textContent = '检查中…'; const { watches = [] } = await chrome.storage.local.get('watches'); if (!watches.length) { $('#checkNow').disabled = false; $('#checkNow').textContent = '立即检查'; alert('还没有关注的型号。\n请先在 IC交易网 / 正能量网 / 华强电子网的搜索结果页，点货源对比条上的「🔔 关注库存变化」。'); return; } await chrome.runtime.sendMessage({ type: 'checkWatchesNow' }); $('#checkNow').disabled = false; $('#checkNow').textContent = '立即检查'; render(); };
+if ($('#testNotify')) $('#testNotify').onclick = (e) => { e.preventDefault(); chrome.runtime.sendMessage({ type: 'watchTest' }); };
+if ($('#watchPage')) $('#watchPage').onclick = () => chrome.runtime.sendMessage({ type: 'openWatch' }).then((r) => { if (!r) chrome.tabs.create({ url: chrome.runtime.getURL('watch.html') }); });
+if ($('#checkNow')) $('#checkNow').onclick = async () => { $('#checkNow').disabled = true; $('#checkNow').textContent = '检查中…'; const { watches = [] } = await chrome.storage.local.get('watches'); if (!watches.length) { $('#checkNow').disabled = false; $('#checkNow').textContent = '立即检查'; alert('还没有监控的商品。\n请在立创、云汉等商品旁点「🔔 监控」，或在三个网站的货源对比条上点「🔔 加入库存价格监控」。'); return; } await chrome.runtime.sendMessage({ type: 'checkWatchesNow' }); $('#checkNow').disabled = false; $('#checkNow').textContent = '立即检查'; render(); };
 if ($('#logsBtn')) $('#logsBtn').onclick = () => chrome.runtime.sendMessage({ type: 'openLogs' }).then((r) => { if (!r) chrome.tabs.create({ url: chrome.runtime.getURL('logs.html') }); });
 $('#accountsBtn').onclick = () => chrome.runtime.sendMessage({ type: 'openAccounts' }).then((r) => { if (!r) chrome.tabs.create({ url: chrome.runtime.getURL('accounts.html') }); });
 $('#openExt').onclick = () => chrome.tabs.create({ url: 'chrome://extensions/?id=' + chrome.runtime.id });

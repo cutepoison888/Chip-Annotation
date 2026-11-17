@@ -43,12 +43,12 @@
     const d = JSON.parse(el.textContent);
     const recs = ((((d.props || {}).pageProps || {}).soData || {}).searchResult || {}).productRecordList || [];
     // 只算真正有现货的；没现货的那条是原厂期货，在“合作库存”里另外读取
-    return recs.map((r) => r.productVO || r).filter((v) => v && v.hasStockNow === 'yes').map((v) => ({
-      channel: '立创现货', rank: 0, priceNote: '含税',
+    return recs.map((r) => r.productVO || r).filter(Boolean).map((v) => ({
+      channel: v.hasStockNow === 'yes' ? '立创现货' : '立创订货', rank: 0, priceNote: '含税', orderOnly: v.hasStockNow !== 'yes',
       model: v.productModel, brand: v.productGradePlateName || '', pkg: v.encapsulationModel || '',
       category: v.productType || '', code: v.productCode || '',
       img: v.bigImageUrl || v.breviaryImageUrl || '',
-      url: v.productCode ? `https://item.szlcsc.com/${String(v.productCode).replace(/^C/, '')}.html` : '',
+      url: v.productId ? `https://item.szlcsc.com/${v.productId}.html` : '',
       stock: Number(v.validStockNumber != null ? v.validStockNumber : v.stockNumber) || 0,
       price: v.productPriceList && v.productPriceList[0] ? Number(v.productPriceList[0].productPrice) || 0 : 0,
       ladder: (v.productPriceList || []).map((x) => [x.spNumber || x.startPurchasedNumber, Number(x.productPrice)]),

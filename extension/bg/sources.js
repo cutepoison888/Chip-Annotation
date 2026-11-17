@@ -24,7 +24,9 @@ function relevant(items, pn) {
 }
 
 function summarize(site, pn, items, error) {
-  const rel = relevant(items || [], pn);
+  const all = relevant(items || [], pn);
+  const rel = all.filter((it) => !it.orderOnly);
+  const others = all.filter((it) => it.orderOnly);
   const stock = rel.reduce((a, it) => a + (Number(it.stock) || 0), 0);
   const prices = rel.map((it) => it.price).filter((p) => p > 0);
   return {
@@ -32,6 +34,7 @@ function summarize(site, pn, items, error) {
     ok: !error, error: error || '',
     count: rel.length, stock, minPrice: prices.length ? Math.min(...prices) : 0,
     items: rel.slice(0, 60),
+    others: others.slice(0, 20), // 只给单个商品监控用（立创订货）
     direct: rel.some((it) => it.direct),
     datasheet: (rel.find((it) => it.datasheet) || {}).datasheet || '',
   };
@@ -45,12 +48,15 @@ function parseSzlcsc(htmlText) {
   const d = JSON.parse(m[1]);
   const list = (((d.props || {}).pageProps || {}).soData || {}).searchResult;
   const recs = (list && list.productRecordList) || [];
-  return recs.map((r) => r.productVO || r).filter((v) => v && v.hasStockNow === 'yes').map((v) => ({
-    channel: '立创现货', rank: 0,
+  // 没有现货（hasStockNow 不是 yes，页面上显示“订货 3-5 个工作日 / 库存 xxx”）的那条标成 orderOnly：
+  // 货源对比的库存合计不算它，但单个商品监控能找到它
+  return recs.map((r) => r.productVO || r).filter(Boolean).map((v) => ({
+    channel: v.hasStockNow === 'yes' ? '立创现货' : '立创订货', rank: 0, orderOnly: v.hasStockNow !== 'yes',
     model: v.productModel, brand: v.productGradePlateName || '', pkg: v.encapsulationModel || '',
     category: v.productType || '', code: v.productCode || '',
     img: v.breviaryImageUrl || '',
-    url: v.productCode ? `https://item.szlcsc.com/${String(v.productCode).replace(/^C/, '')}.html` : '',
+    // 商品页网址用的是 productId（不是编号 C 后面的数字）
+    url: v.productId ? `https://item.szlcsc.com/${v.productId}.html` : '',
     stock: Number(v.validStockNumber != null ? v.validStockNumber : v.stockNumber) || 0,
     price: v.productPriceList && v.productPriceList[0] ? Number(v.productPriceList[0].productPrice) || 0 : 0,
     ladder: (v.productPriceList || []).map((x) => [x.spNumber || x.startPurchasedNumber, Number(x.productPrice)]),

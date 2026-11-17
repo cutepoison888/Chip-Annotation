@@ -46,10 +46,10 @@
   </div>
 
   <div class="card" data-need="watch">
-    <div class="row"><h4 style="margin:0">库存 / 价格变化提醒</h4><span><button id="testNotify" title="弹出一条示例通知，看看提醒长什么样">模拟提醒</button> <button id="checkNow">立即检查</button></span></div>
-    <p class="muted" style="margin:4px 0 6px">添加方法：在三个网站搜索页点货源对比条上的“🔔 关注库存变化”，或在立创、云汉、圣禾堂、贸泽、得捷的商品旁边点“🔔 关注”。只查“⚙ 货源网站”里勾选的<b>立创、云汉、圣禾堂、得捷、贸泽</b>；<b>库存</b>变多、变少、到货、卖完，或<b>最低价</b>涨、降时，弹出电脑的系统通知，写明是哪个网站、从多少变成多少，点通知打开那个网站。看不到通知时，到 Mac 的“系统设置 → 通知 → Google Chrome”里允许通知。<br>需要浏览器开着才会检查（关掉所有窗口但没退出也可以）；浏览器关了不检查，下次打开时如果已超过间隔，会自动补查一次。</p>
+    <div class="row"><h4 style="margin:0">库存价格监控</h4><button id="watchPage" class="primary">打开库存价格监控</button></div>
+    <div class="row"><span class="muted" id="watchSum">还没有监控的商品</span><button id="checkNow">立即检查</button></div>
     <div class="row"><span>检查间隔</span><select id="watchMinutes" style="width:auto"><option value="30">每 30 分钟</option><option value="60">每 1 小时</option><option value="120">每 2 小时</option><option value="240">每 4 小时</option><option value="720">每 12 小时</option><option value="1440">每天一次</option></select></div>
-    <div id="watchList"></div>
+    <p class="muted" style="margin:4px 0 0">在立创、云汉等商品旁点“🔔 监控”只盯那一条；在三个网站的货源对比条点“🔔 加入库存价格监控”查各网站合计。看不到通知时，到 Mac 的“系统设置 → 通知 → Google Chrome”里允许通知。<a href="#" id="testNotify">模拟一次提醒</a></p>
     <div id="watchEvents"></div>
   </div>
 

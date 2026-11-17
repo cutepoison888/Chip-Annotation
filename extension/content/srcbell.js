@@ -1,6 +1,6 @@
-// 芯标注 · 货源网站上的“🔔 关注”按钮（立创、云汉、圣禾堂、贸泽、得捷）
+// 芯标注 · 货源网站上的“🔔 监控”按钮（立创、云汉、圣禾堂、贸泽、得捷）
 // 立创 / 云汉 / 圣禾堂：搜索结果每个商品右边一个；贸泽 / 得捷：商品页库存旁边一个。
-// 点一下 = 关注这个型号的库存和价格变化（和三个网站货源条上的“🔔 关注库存变化”是同一份关注列表），再点一下取消。
+// 点一下 = 把这一条商品加入库存价格监控（只盯这一条，不是这个型号的全部货源），再点一下移出。
 // 只在用户自己打开的页面显示；插件开的后台查询标签页（网址带 #icm-lookup）不显示，免得影响读取。
 (async () => {
   if (/icm-lookup=/.test(location.hash)) return;
@@ -90,39 +90,103 @@
     t._h = setTimeout(() => t.classList.remove('show'), 5000);
   }
 
-  let watched = new Set();
+  // ---------- 这一条商品是哪一条：立创按编号，云汉按商品链接，贸泽 / 得捷按商品页网址，圣禾堂按型号 + 品牌 + 封装 + 批次 + 分区 ----------
+  const normUrl = (u) => String(u || '').split('#')[0].replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase();
+  const absU = (u) => { try { return u ? new URL(u, location.href).href.split('#')[0] : ''; } catch { return ''; } };
+  const numOf = (s) => Number(String(s || '').replace(/[^\d.]/g, '')) || 0;
+  function bommanChannel(row) {
+    const block = row.closest('[id^="classify-"]');
+    const first = block ? (block.innerText || '').split('\n').map((x) => x.trim()).filter(Boolean)[0] || '' : '';
+    if (/^型号\/品牌/.test(first)) return '自营';
+    if (/自营\s*·\s*在途/.test(first)) return '自营 · 在途';
+    if (/严选/.test(first)) return '圣禾堂 · 严选';
+    if (/合作库存/.test(first)) return '合作库存';
+    return first.slice(0, 12);
+  }
+  function identOf(t) {
+    const pn = t.pn;
+    if (t.key === 'detail') {
+      const url = location.href.split('#')[0];
+      const body = document.body.innerText;
+      return { key: 'url:' + normUrl(url), model: pn, url, stock: numOf((body.match(/(?:库存|现货)\s*[:：]\s*([\d,]+)/) || [])[1]) };
+    }
+    const row = t.el;
+    const text = row.innerText || row.textContent || ''; // 标签页在后台时 innerText 可能是空的
+    const g = (re) => ((text.match(re) || [])[1] || '').trim();
+    const img = [...row.querySelectorAll('img')].find((i) => i.getBoundingClientRect().width > 50);
+    const base = { model: pn, img: img ? img.src : '', price: numOf(g(/[¥￥]\s*([\d.]+)/)) };
+    if (SITE === 'szlcsc') {
+      // 立创页面上“编号 / 现货 / 品牌”后面的冒号是样式画的，文字里没有；商品页链接里的数字是商品 ID，不是编号，不能拿来当编号
+      // 逐个文字节点取，一个节点一行（直接用 textContent 会把“1652”和“160个/托盘”粘成一个数）
+      const parts = [];
+      const tw = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
+      for (let n = tw.nextNode(); n; n = tw.nextNode()) { const s = n.nodeValue.trim(); if (s) parts.push(s); }
+      const tc = parts.join('\n');
+      const t1 = (re) => ((tc.match(re) || [])[1] || '').trim();
+      const det = row.querySelector('a[href*="/lcsc/detail/C"]');
+      let code = det ? ((det.getAttribute('href') || '').match(/\/(C\d+)\.html/) || [])[1] || '' : '';
+      if (!code) code = t1(/编号\s*[:：]?\s*(C\d+)/);
+      const itemA = [...row.querySelectorAll('a')].find((a) => /^\/\d+\.html$/.test(a.pathname) && /item\.szlcsc\.com$/.test(a.hostname));
+      const brand = t1(/(?:^|\n)品牌\s*[:：]?\s*\n?\s*([^\n]+)/);
+      const pkg = t1(/(?:^|\n)封装\s*[:：]?\s*\n?\s*([^\n]+)/);
+      // 现货那条写“现货 1652”；订货那条写“库存 830”（“嘉立创库存 1932”不在行首，不会读到）
+      const stock = numOf(t1(/(?:^|\n)现货\s*[:：]?\s*\n?\s*([\d,]+)/) || ((tc.match(/(?:^|\n)库存\s*[:：]?\s*\n?\s*([\d,]+)/g) || []).pop() || '').replace(/^[\s\S]*库存\s*[:：]?\s*/, ''));
+      const ladder = [...tc.matchAll(/(?:^|\n)(\d[\d,]*)\s*\+\s*[:：]?\s*[¥￥]\s*([\d.]+)/g)].map((x) => [numOf(x[1]), Number(x[2])]);
+      return { ...base, key: code ? 'code:' + code : ['m', norm(pn), norm(brand), norm(pkg)].join('|'), code, brand, pkg, stock, ladder,
+        price: ladder[0] ? ladder[0][1] : base.price, url: itemA ? `https://item.szlcsc.com${itemA.pathname}` : '' };
+    }
+    if (SITE === 'ickey') {
+      const tt = (id) => { const e = row.querySelector(`[data-testid="${id}"]`); return e ? e.textContent.replace(/\s+/g, ' ').trim() : ''; };
+      const link = row.querySelector('[data-testid="site-product-title"]') || row.querySelector('h2 a');
+      const url = link ? absU(link.getAttribute('href')) : '';
+      const brand = tt('site-product-manufacturer');
+      const pkg = tt('site-product-package');
+      const batch = tt('site-product-batch');
+      return { ...base, key: url ? 'url:' + normUrl(url) : ['m', norm(pn), norm(brand), norm(pkg), norm(batch)].join('|'), url, brand, pkg, batch, stock: numOf(tt('site-product-stock')) };
+    }
+    const brand = g(/品牌\s*[:：]\s*\n?([^\n]+)/).replace(/^复制$/, '');
+    const pkg = g(/封装\s*[:：]\s*\n?([^\n]+)/);
+    const batch = g(/批次\s*[:：]\s*\n?\s*([^\n]+)/);
+    const channel = SITE === 'bomman' ? bommanChannel(row) : '';
+    const link = row.querySelector('a[href*="ProductDetail"], a[href*="/products/detail/"]');
+    const url = link ? absU(link.getAttribute('href')) : '';
+    return { ...base, key: url ? 'url:' + normUrl(url) : ['m', norm(pn), norm(brand), norm(pkg), norm(batch), channel].join('|'),
+      url, brand, pkg, batch, channel, stock: numOf(g(/库存\s*[:：]\s*\n?\s*([\d,]+)/)) };
+  }
+
+  // 在单个货源网站上点：只监控这一条商品（不是这个型号在这个网站的全部货源）
+  let watchedKeys = new Map(); // key → watch id
   async function loadWatched() {
     const { watches = [] } = await chrome.storage.local.get('watches');
-    watched = new Set(watches.map((w) => norm(w.pn)));
+    watchedKeys = new Map(watches.filter((w) => w.kind === 'item' && w.site === SITE && w.ident).map((w) => [w.ident.key, w.id]));
     paintStates();
   }
   function paintStates() {
     for (const b of layer.querySelectorAll('.icm-bell')) {
       if (b.classList.contains('busy')) continue;
-      const on = watched.has(norm(b.dataset.pn));
+      const on = watchedKeys.has(b.dataset.key);
       b.classList.toggle('on', on);
-      b.textContent = on ? '🔔 已关注' : '🔔 关注';
-      b.title = on ? `已关注 ${b.dataset.pn} 的库存和价格变化，点击取消` : `关注 ${b.dataset.pn} 的库存和价格变化（有变化时弹出电脑通知）`;
+      b.textContent = on ? '🔔 已监控' : '🔔 监控';
+      b.title = on ? `这一条已在库存价格监控里，点击移出` : `把这一条 ${b.dataset.pn} 加入库存价格监控：只盯这一条的库存和价格，有变化弹出电脑通知`;
     }
   }
   const every = (m) => (m >= 1440 ? '每天' : m >= 60 ? `每 ${m / 60} 小时` : `每 ${m} 分钟`);
   async function onBell(b) {
     const pn = b.dataset.pn;
-    if (b.classList.contains('busy')) return;
-    if (watched.has(norm(pn))) {
-      await chrome.runtime.sendMessage({ type: 'removeWatch', pn });
-      tip(`已取消关注 ${pn}`);
+    if (b.classList.contains('busy') || !b._target) return;
+    const ident = identOf(b._target);
+    if (watchedKeys.has(ident.key)) {
+      await chrome.runtime.sendMessage({ type: 'removeWatch', id: watchedKeys.get(ident.key) }).catch(() => null);
+      tip(`已把这一条 ${pn} 移出库存价格监控`);
       return;
     }
     b.classList.add('busy');
     b.textContent = '🔔 记录当前库存…';
-    const r = await chrome.runtime.sendMessage({ type: 'addWatch', pn }).catch(() => null);
+    const r = await chrome.runtime.sendMessage({ type: 'addItemWatch', site: SITE, pn, ident }).catch(() => null);
     b.classList.remove('busy');
     if (r && r.ok) {
-      const sites = r.sites || [];
-      const miss = r.exists || sites.includes(SITE_NAME) ? '' : `（${SITE_NAME}没有在“⚙ 货源网站”里勾选，不会检查${SITE_NAME}）`;
-      tip(r.exists ? `${pn} 已经在关注了` : `已关注 ${pn}：${every(r.minutes || 120)}检查 ${sites.join('、')} 的库存和价格，有变化弹出电脑通知${miss}`);
-    } else tip((r && r.error) || '关注失败：请到 chrome://extensions 刷新芯标注插件后，再刷新这个页面');
+      tip(r.exists ? '这一条已经在库存价格监控里了' : `已加入库存价格监控：${every(r.minutes || 120)}检查${SITE_NAME}这一条 ${pn}${ident.code ? `（${ident.code}）` : ''}，当前库存 ${Number(r.stock || 0).toLocaleString('zh-CN')}，有变化弹出电脑通知`);
+    } else tip((r && r.error) || '加入失败：请到 chrome://extensions 刷新芯标注插件后，再刷新这个页面');
     paintStates();
   }
 
@@ -145,7 +209,9 @@
         layer.appendChild(b);
         bells.set(t.key, b);
       }
+      b._target = t;
       if (b.dataset.pn !== t.pn) { b.dataset.pn = t.pn; b.textContent = ''; }
+      try { b.dataset.key = identOf(t).key; } catch { b.dataset.key = ''; }
       keep.add(b);
       const r = t.el.getBoundingClientRect();
       const w = b.offsetWidth || 86;
@@ -163,7 +229,7 @@
   new MutationObserver((muts) => { if (muts.some((m) => !layer.contains(m.target))) later(); }).observe(document.body, { childList: true, subtree: true });
   window.addEventListener('resize', later);
   setInterval(place, 2500);
-  chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && c.watches) loadWatched(); });
+  chrome.storage.onChanged.addListener((c, area) => { if (area === 'local' && (c.watches || c.settings)) loadWatched(); });
   await loadWatched();
   place();
 })();
